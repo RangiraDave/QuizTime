@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Quiz Result{% endblock %}
+{% block content %}
+<h2>Quiz Result</h2>
+<div class="container mt-4">
+    <p>You scored {{ score }} out of {{ quiz.questions.count }}.</p>
+    <p>Percentage: {{ percentage }}%</p>
+    <a href="{% url 'quiz_list' category_id %}" class="btn btn-primary">Take another Quiz</a>
+</div>
+{% endblock %}

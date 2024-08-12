@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'QuizTime',
+    'AppQuiz',
 ]
 
 MIDDLEWARE = [
@@ -125,3 +125,23 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_URL = 'login'
+
+# Redirect to home page after login
+LOGIN_REDIRECT_URL = 'home'
+
+# Redirect to login page after logout
+LOGOUT_REDIRECT_URL = 'login'
+
+# Session will expire where user closes the browser
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Optionaly set the session timeout
+SESSION_COOKIE_AGE = 60 * 5 # 5 minutes
+
+# Email configuration
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 8000
+EMAIL_USE_TLS = True

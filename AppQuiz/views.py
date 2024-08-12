@@ -1,55 +1,225 @@
 # Authentication views
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-# from .forms import CreateUserForm
-# from .models import Quiz, Question, Answer, Result
-
+from .forms import SignUpForm
+from .models import QuizResult, Quiz, Question, Choice, Category
 
 
 # Home view implementation
+@login_required
 def home(request):
+    """
+    View function for the home page.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: The HTTP response object.
+    """
     return render(request, 'home.html')
 
 
 # User registration view implementation
 def signup_view(request):
+    """
+    View function for handling user registration.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: The HTTP response object.
+    """
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = SignUpForm(request.POST)
         if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
+            user = form.save()
+            # Automatically log in the user after registration
             login(request, user)
-            messages.success(request, 'Account created successfully')
-            if user is not None:
-                login(request, user)
-                messages.success(request, 'Logged in successfully')
-                return redirect('home')
+            # messages.success(request, 'Account created successfully')
+            return redirect('home')
     else:
-        form = UserCreationForm()
+        form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
 
 
 # User login view implementation
 def login_view(request):
+    """
+    View function for handling user login.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: The HTTP response object.
+
+    Raises:
+        None
+
+    """
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            messages.success(request, 'Logged in successfully')
-            return redirect('home')
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            # Authenticate the user
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                # messages.success(request, 'Logged in successfully')
+                return redirect('home')
     else:
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
 
 
 # User logout view implementation
+@login_required
 def logout_view(request):
+    """
+    View function for handling user logout.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: The HTTP response object.
+    """
     logout(request)
     messages.info(request, 'Logged out successfully')
     return redirect('login')
+
+
+# profile view implementation
+@login_required
+def profile_view(request):
+    """
+    View function for the user profile page.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: The HTTP response object.
+    """
+    # Get the logged-in user
+    user = request.user
+
+    # Fetch the user's quiz results (assuming you have a QuizResult model)
+    quiz_results = QuizResult.objects.filter(user=user)
+
+    # Calculate total score
+    total_score = sum(result.score for result in quiz_results)
+
+    # Fetch the user's worldwide ranking
+    worldwide_rank = QuizResult.objects.filter(score__gt=total_score).count() + 1
+
+    context = {
+        'quiz_results': quiz_results,
+        'total_score': total_score,
+        'worldwide_rank': worldwide_rank,
+    }
+
+    return render(request, 'profile.html', context)
+
+
+# Category list view implementation
+def category_list(request):
+    """
+    View function for the category list page.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: The HTTP response object
+    """
+    categories = Category.objects.all()
+    return render(
+        request,
+        'category_list.html',
+        {'categories': categories}
+        )
+
+
+# Quiz list view implementation
+def quiz_list(request, category_id):
+    """
+    View function for the quiz list page.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        category_id (int): The
+        category ID.
+
+    Returns:
+        HttpResponse: The HTTP response object.
+    """
+    category = get_object_or_404(Category, id=category_id)
+    quizzes = Quiz.objects.filter(category=category)
+    return render(
+        request,
+        'quiz_list.html',
+        {'category': category,
+        'quizzes': quizzes}
+        )
+
+
+# Take quiz view implementation
+@login_required
+def take_quiz(request, quiz_id):
+    """
+    View function for taking a quiz.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        quiz_id (int): The quiz ID.
+
+    Returns:
+        HttpResponse: The HTTP response object.
+    """
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    questions = quiz.questions.all()
+
+    if request.method == 'POST':
+        score = 0
+        for question in questions:
+            selected_choice = request.POST.get(f'question_{question.id}')
+            if selected_choice:
+                selected_choice = Choice.objects.get(id=selected_choice)
+                if selected_choice.is_correct:
+                    score += 1
+
+        QuizResult.objects.create(user=request.user, quiz=quiz, score=score)
+        return redirect('quiz_result', quiz_id=quiz.id, score=score)
+
+    return render(request, 'take_quiz.html', {'quiz': quiz, 'questions': questions})
+
+
+# Quiz result view implementation
+@login_required
+def quiz_result(request, quiz_id, score):
+    """
+    View function for displaying the quiz result.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        quiz_id (int): The quiz ID.
+        score (int): The user's score.
+
+    Returns:
+        HttpResponse: The HTTP response object.
+    """
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    category_id = quiz.category.id
+    return render(
+        request,
+        'quiz_result.html',
+        {'quiz': quiz, 'score': score, 
+        'category_id': category_id}
+        )

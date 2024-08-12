@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Your Profile</h2>
+    <p>Username: {{ user.username }}</p>
+    <h3>Quiz Results</h3>
+    <ul class="list-group">
+        {% for result in quiz_results %}
+        <li class="list-group-item">
+            Category: {{ result.category }} - Score: {{ result.score }}
+        </li>
+        {% endfor %}
+    </ul>
+    <h4>Total Score: {{ total_score }}</h4>
+    <h4>Worldwide Rank: {{ worldwide_rank }}</h4>
+</div>
+{% endblock %}
