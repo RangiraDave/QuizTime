@@ -4,7 +4,12 @@
 
 {% block content %}
     <h2>{{ quiz.title }} ({{ quiz.level }})</h2>
-    <form method="post">
+    <p><strong>Please answer all questions before submitting the quiz.</strong></p>
+
+    <!-- Timer Display -->
+    <div id="timer" style="font-weight: bold; color: red;"></div>
+
+    <form id="quizForm" method="post">
         {% csrf_token %}
         {% for question in questions %}
             <h4>{{ question.text }}</h4>
@@ -15,7 +20,66 @@
                 </label>
                 <br>
             {% endfor %}
+            <hr>
         {% endfor %}
         <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="button" class="btn btn-secondary" onclick="reviewAnswers()">Review Answers</button>
     </form>
+
+    <script>
+        // Timer countdown in seconds (e.g., 10 minutes = 600 seconds)
+        let timeLeft = 600;
+
+        function startTimer() {
+            const timerElement = document.getElementById('timer');
+            const interval = setInterval(() => {
+                let minutes = Math.floor(timeLeft / 60);
+                let seconds = timeLeft % 60;
+                timerElement.innerHTML = `Time left: ${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    document.getElementById('quizForm').submit();
+                }
+                timeLeft--;
+            }, 1000);
+        }
+
+        startTimer();
+
+        // Review Answers Function
+        function reviewAnswers() {
+            alert('Review your answers carefully before final submission.');
+        }
+    </script>
+    <!-- Progress Bar -->
+    <div class="progress">
+        <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+
+    <script>
+        function updateProgress() {
+            const totalQuestions = {{ questions|length }};
+            let answeredQuestions = 0;
+            for (let i = 1; i <= totalQuestions; i++) {
+                const radioButtons = document.getElementsByName(`question_${i}`);
+                for (let radioButton of radioButtons) {
+                    if (radioButton.checked) {
+                        answeredQuestions++;
+                        break;
+                    }
+                }
+            }
+            const progressPercentage = (answeredQuestions / totalQuestions) * 100;
+            document.getElementById('progressBar').style.width = progressPercentage + '%';
+            document.getElementById('progressBar').setAttribute('aria-valuenow', progressPercentage);
+        }
+
+        // Attach event listeners to all radio buttons
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', updateProgress);
+        });
+
+        // Initial progress update
+        updateProgress();
+    </script>
 {% endblock %}

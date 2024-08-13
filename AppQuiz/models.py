@@ -30,8 +30,12 @@ class Quiz(models.Model):
     ]
 
     title = CharField(max_length=100)
-    category = models.ForeignKey('Category', on_delete=CASCADE, related_name='quizzes')
-    level = models.CharField(max_length=10, choices=LEVELS_CHOICES)
+    category = ForeignKey(
+        'Category',
+        on_delete=CASCADE,
+        related_name='quizzes'
+        )
+    level = CharField(max_length=10, choices=LEVELS_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -105,3 +109,47 @@ class QuizResult(models.Model):
         Returns the string representation of the quiz result
         """
         return f"{self.user.username} - {self.quiz.title}: {self.score}"
+
+    def percentage(self):
+        """
+        The method to make it easy to calculate
+        the percentage score of the quiz result.
+
+        Returns:
+            int: The percentage score
+        """
+        total_questions = self.quiz.questions.count()
+        return (
+            self.score / total_questions
+            ) * 100 if total_questions > 0 else 0
+
+    def global_ran(self):
+        """
+        The method to get the global rank of the user
+        based on the quiz result.
+
+        Returns:
+            int: The global rank
+        """
+        higher_score_count = QuizResult.objects.filter(
+            quiz=self.quiz,
+            score__gt=self.score
+            ).count()
+
+        return higher_score_count + 1
+
+    def category_rank(self):
+        """
+        The method to get the category rank of the user
+        based on the quiz result.
+
+        Returns:
+            int: The category rank
+        """
+        category = self.quiz.category
+        higher_score_count = QuizResult.objects.filter(
+            quiz__category=category,
+            score__gt=self.score
+            ).count()
+
+        return higher_score_count + 1

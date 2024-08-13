@@ -5,6 +5,23 @@
 <div class="container mt-4">
     <p>You scored {{ score }} out of {{ quiz.questions.count }}.</p>
     <p>Percentage: {{ percentage }}%</p>
+    <hr>
+    <h3>Review Answers</h3>
+    <ul>
+        {% for question in questions %}
+        <li>
+            <strong>{{ question.text }}</strong>
+            <ul>
+                {% for choice in question.choices.all %}
+                <li>
+                    {{ choice.text }} 
+                    {% if choice.is_correct %}<em>(Correct Answer)</em>{% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        </li>
+        {% endfor %}
+    </ul>
     <a href="{% url 'quiz_list' category_id %}" class="btn btn-primary">Take another Quiz</a>
 </div>
 {% endblock %}

@@ -1,18 +1,25 @@
 {% extends 'base.html' %}
 
+{% block title %}Your Profile{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
     <h2>Your Profile</h2>
-    <p>Username: {{ user.username }}</p>
-    <h3>Quiz Results</h3>
-    <ul class="list-group">
-        {% for result in quiz_results %}
-        <li class="list-group-item">
-            Category: {{ result.category }} - Score: {{ result.score }}
-        </li>
-        {% endfor %}
-    </ul>
-    <h4>Total Score: {{ total_score }}</h4>
-    <h4>Worldwide Rank: {{ worldwide_rank }}</h4>
-</div>
+    <p><strong>Username:</strong> {{ user.username }}</p>
+
+    <h3>Your Quizzes Results</h3>
+    {% if quiz_results %}
+        <ul>
+            {% for category, score in scores_by_category.items %}
+                <li>
+                    <strong>{{ category.name }}</strong>: {{ score }}
+                </li>
+            {% endfor %}
+        </ul>
+        <p><strong>Total Score:</strong> {{ total_score }}</p>
+        <p><strong>Worldwide Rank:</strong> {{ worldwide_rank }}</p>
+    {% else %}
+        <p>You haven't taken any quizzes yet.</p>
+        <p>Please try one ane test your knowledge. <strong>Good luck!</strong></p>
+        <a href="{% url 'categories' %}" class="btn btn-primary">Take a Quiz</a>
+    {% endif %}
 {% endblock %}

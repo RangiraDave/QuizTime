@@ -107,10 +107,7 @@ def profile_view(request):
     Returns:
         HttpResponse: The HTTP response object.
     """
-    # Get the logged-in user
     user = request.user
-
-    # Fetch the user's quiz results (assuming you have a QuizResult model)
     quiz_results = QuizResult.objects.filter(user=user)
 
     # Calculate total score
@@ -119,10 +116,20 @@ def profile_view(request):
     # Fetch the user's worldwide ranking
     worldwide_rank = QuizResult.objects.filter(score__gt=total_score).count() + 1
 
+    # Get distinct categories the user has taken quizzes in
+    categories_taken = set(result.quiz.category for result in quiz_results)
+
+    # Calculate scores by category
+    scores_by_category = {category: 0 for category in categories_taken}
+    for result in quiz_results:
+        scores_by_category[result.quiz.category] += result.score
+
     context = {
+        'username': user.username,
         'quiz_results': quiz_results,
         'total_score': total_score,
         'worldwide_rank': worldwide_rank,
+        'scores_by_category': scores_by_category
     }
 
     return render(request, 'profile.html', context)
@@ -151,6 +158,7 @@ def category_list(request):
 def quiz_list(request, category_id):
     """
     View function for the quiz list page.
+    It will list all quizzes in a given category and level.
 
     Args:
         request (HttpRequest): The HTTP request object.
@@ -184,18 +192,35 @@ def take_quiz(request, quiz_id):
         HttpResponse: The HTTP response object.
     """
     quiz = get_object_or_404(Quiz, id=quiz_id)
+    user = request.user
     questions = quiz.questions.all()
+
+    # Check if the user has already taken this quiz
+    existing_result = QuizResult.objects.filter(user=user, quiz=quiz).first()
+    if QuizResult.objects.filter(user=user, quiz=quiz).exists():
+        messages.warning(request, 'You have already taken this quiz.')
+        return redirect('quiz_result', quiz_id=quiz.id, score=existing_result.score)
 
     if request.method == 'POST':
         score = 0
+        unanswered_questions = False
+
         for question in questions:
             selected_choice = request.POST.get(f'question_{question.id}')
-            if selected_choice:
+            if not selected_choice:
+                unanswered_questions = True
+                break
+            else:
                 selected_choice = Choice.objects.get(id=selected_choice)
                 if selected_choice.is_correct:
                     score += 1
 
-        QuizResult.objects.create(user=request.user, quiz=quiz, score=score)
+        # If there are unanswered questions, show an error message
+        if unanswered_questions:
+            messages.error(request, 'Please answer all questions before submitting the quiz.')
+            return render(request, 'take_quiz.html', {'quiz': quiz, 'questions': questions})
+
+        QuizResult.objects.create(user=user, quiz=quiz, score=score)
         return redirect('quiz_result', quiz_id=quiz.id, score=score)
 
     return render(request, 'take_quiz.html', {'quiz': quiz, 'questions': questions})
@@ -203,7 +228,7 @@ def take_quiz(request, quiz_id):
 
 # Quiz result view implementation
 @login_required
-def quiz_result(request, quiz_id, score):
+def quiz_result(request, quiz_id, score=None):
     """
     View function for displaying the quiz result.
 
@@ -217,9 +242,29 @@ def quiz_result(request, quiz_id, score):
     """
     quiz = get_object_or_404(Quiz, id=quiz_id)
     category_id = quiz.category.id
+    questions = quiz.questions.all()
+    total_questions = questions.count()
+    user = request.user
+    percentage = (score / questions.count()) * 100 if total_questions > 0 else 0
+
+    # If the score is not provided, it means the user is not supposed to see the result
+    if score is None:
+        result = QuizResult.objects.filter(user=user, quiz=quiz).first()
+        if result:
+            score = result.score
+        else:
+            messages.error(request, 'You have not taken this quiz yet.')
+            return redirect('home')
+
+    category_id = quiz.category.id
     return render(
         request,
         'quiz_result.html',
-        {'quiz': quiz, 'score': score, 
-        'category_id': category_id}
-        )
+        {
+            'quiz': quiz,
+            'score': score,
+            'category_id': category_id,
+            'percentage': percentage,
+            'questions': questions
+            }
+    )
