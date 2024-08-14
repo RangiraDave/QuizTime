@@ -1,7 +1,10 @@
 from django import forms
+from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, ValidationError
 # from .models import Quiz, Question, Answer, Result
+from .models import Question
+from tinymce.widgets import TinyMCE
 
 
 # User registration form
@@ -11,7 +14,12 @@ class SignUpForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password1', 'confirm_password']
+        fields = [
+            'username',
+            'email',
+            'password1',
+            'confirm_password'
+            ]
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -34,4 +42,28 @@ class SignUpForm(forms.ModelForm):
         return user
 
 
-# User login form
+class QuestionAdminForm(forms.ModelForm):
+    """
+    Form for the Question model in the admin
+    """
+    # Use TinyMCE widget for text field
+    text = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 10}))
+    class Meta:
+        model = Question
+        fields = '__all__'
+
+    def clean(self):
+        cleaned_data = super().clean()
+        choices = cleaned_data.get('choices')
+        correct_choices = [choice for choice in choices if choice.is_correct]
+        if not correct_choices:
+            raise ValidationError('At least one choice must be correct')
+        return cleaned_data
+
+
+@admin.register(Question)
+class QuestionAdmin(admin.ModelAdmin):
+    """
+    Custom admin for Question model
+    """
+    form = QuestionAdminForm

@@ -1,0 +1,11 @@
+<!-- templates/admin/custom_dashboard.html -->
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<h1>Admin Dashboard</h1>
+<div>
+    <p>Total Quizzes: {{ quizzes_count }}</p>
+    <p>Total Categories: {{ categories_count }}</p>
+    <p>Total Questions: {{ questions_count }}</p>
+</div>
+{% endblock %}
