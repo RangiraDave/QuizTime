@@ -223,7 +223,14 @@ def take_quiz(request, quiz_id):
         QuizResult.objects.create(user=user, quiz=quiz, score=score)
         return redirect('quiz_result', quiz_id=quiz.id, score=score)
 
-    return render(request, 'take_quiz.html', {'quiz': quiz, 'questions': questions})
+    return render(
+        request,
+        'take_quiz.html',
+        {
+            'quiz': quiz,
+            'questions': questions,
+            'time_limit': quiz.time_limit * 60  # Converted minutes to seconds
+            })
 
 
 # Quiz result view implementation

@@ -37,6 +37,7 @@ class Quiz(models.Model):
         )
     level = CharField(max_length=10, choices=LEVELS_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
+    time_limit = models.IntegerField(default=10)  # Time limit in minutes
 
     def __str__(self):
         """
