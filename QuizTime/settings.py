@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'AppQuiz',
     'tinymce',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

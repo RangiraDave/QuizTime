@@ -1,9 +1,19 @@
 # Applicatoin URL Configuration
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import views
 from .admin import custom_admin_site
+from .views import QuizViewSet, QuestionViewSet
+
+
+# API URL Configuration
+router = DefaultRouter()
+router.register(r'quizzes', QuizViewSet)
+router.register(r'questions', QuestionViewSet)
+
 
 urlpatterns = [
+    path('api/', include(router.urls)),  # API URL
     path('admin/', custom_admin_site.urls),  # Custom admin site
     path('signup/', views.signup_view, name='signup'),
     path('login/', views.login_view, name='login'),

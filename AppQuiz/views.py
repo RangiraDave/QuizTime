@@ -5,7 +5,27 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .forms import SignUpForm
+from rest_framework import viewsets
 from .models import QuizResult, Quiz, Question, Choice, Category
+from .serializers import QuizSerializer, QuestionSerializer
+
+
+# Class-based view for the Quiz model
+class QuizViewSet(viewsets.ModelViewSet):
+    """
+    Viewset for the Quiz model
+    """
+    queryset = Quiz.objects.all()
+    serializer_class = QuizSerializer
+
+
+# Class-based view for the Question model
+class QuestionViewSet(viewsets.ModelViewSet):
+    """
+    Viewset for the Question model
+    """
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializer
 
 
 # Home view implementation
