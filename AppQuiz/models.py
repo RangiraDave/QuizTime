@@ -57,6 +57,8 @@ class Question(models.Model):
         related_name='questions'
         )
     text = models.CharField(max_length=255)
+    description = models.TextField(blank=True)  # upper part of the question
+    example_or_doc = models.TextField(blank=True, null=True)  # lower part of the question
 
     def __str__(self):
         """

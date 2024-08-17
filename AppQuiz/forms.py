@@ -59,11 +59,3 @@ class QuestionAdminForm(forms.ModelForm):
         if not correct_choices:
             raise ValidationError('At least one choice must be correct')
         return cleaned_data
-
-
-@admin.register(Question)
-class QuestionAdmin(admin.ModelAdmin):
-    """
-    Custom admin for Question model
-    """
-    form = QuestionAdminForm

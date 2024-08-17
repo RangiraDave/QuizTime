@@ -3,6 +3,11 @@ from django.contrib import admin
 from .models import Category, Quiz, Question, Choice
 from django.shortcuts import render
 from django.utils.html import format_html
+from .models import Question
+
+
+class QuestionAdmin(admin.ModelAdmin):
+    fields = ['text', 'quiz', 'description', 'example_or_doc']
 
 
 # Inline models
@@ -79,3 +84,4 @@ custom_admin_site.register(Category, CategoryAdmin)
 custom_admin_site.register(Quiz, QuizAdmin)
 # custom_admin_site.register(Question, QuestionInline)
 custom_admin_site.register(Choice)
+admin.site.register(Question, QuestionAdmin)
