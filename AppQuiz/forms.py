@@ -1,7 +1,9 @@
 from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, ValidationError
+from django.contrib.auth.forms import (
+    UserCreationForm, AuthenticationForm, ValidationError
+)
 # from .models import Quiz, Question, Answer, Result
 from .models import Question
 from tinymce.widgets import TinyMCE
@@ -48,6 +50,7 @@ class QuestionAdminForm(forms.ModelForm):
     """
     # Use TinyMCE widget for text field
     text = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 10}))
+
     class Meta:
         model = Question
         fields = '__all__'

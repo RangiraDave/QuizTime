@@ -10,6 +10,7 @@ class QuizSerializer(serializers.ModelSerializer):
         model = Quiz
         fields = '__all__'
 
+
 class QuestionSerializer(serializers.ModelSerializer):
     """
     Serializer class for the Question model

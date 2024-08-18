@@ -19,6 +19,8 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('tinymce/', include('tinymce.urls')), # To include the TinyMCE URL configuration
-    path('', include('AppQuiz.urls')), # To include the AppQuiz URL configuration
+    # To include the TinyMCE URL configuration
+    path('tinymce/', include('tinymce.urls')),
+    # To include the AppQuiz URL configuration
+    path('', include('AppQuiz.urls')),
 ]

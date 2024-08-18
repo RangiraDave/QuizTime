@@ -134,7 +134,9 @@ def profile_view(request):
     total_score = sum(result.score for result in quiz_results)
 
     # Fetch the user's worldwide ranking
-    worldwide_rank = QuizResult.objects.filter(score__gt=total_score).count() + 1
+    worldwide_rank = QuizResult.objects.filter(
+        score__gt=total_score
+        ).count() + 1
 
     # Get distinct categories the user has taken quizzes in
     categories_taken = set(result.quiz.category for result in quiz_results)
@@ -193,8 +195,10 @@ def quiz_list(request, category_id):
     return render(
         request,
         'quiz_list.html',
-        {'category': category,
-        'quizzes': quizzes}
+        {
+            'category': category,
+            'quizzes': quizzes
+            }
         )
 
 
@@ -216,10 +220,16 @@ def take_quiz(request, quiz_id):
     questions = quiz.questions.all()
 
     # Check if the user has already taken this quiz
-    existing_result = QuizResult.objects.filter(user=user, quiz=quiz).first()
+    existing_result = QuizResult.objects.filter(
+        user=user, quiz=quiz
+        ).first()
     if QuizResult.objects.filter(user=user, quiz=quiz).exists():
         messages.warning(request, 'You have already taken this quiz.')
-        return redirect('quiz_result', quiz_id=quiz.id, score=existing_result.score)
+        return redirect(
+            'quiz_result',
+            quiz_id=quiz.id,
+            score=existing_result.score
+            )
 
     if request.method == 'POST':
         score = 0
@@ -237,8 +247,15 @@ def take_quiz(request, quiz_id):
 
         # If there are unanswered questions, show an error message
         if unanswered_questions:
-            messages.error(request, 'Please answer all questions before submitting the quiz.')
-            return render(request, 'take_quiz.html', {'quiz': quiz, 'questions': questions})
+            messages.error(
+                request,
+                'Please answer all questions before submitting the quiz.'
+                )
+            return render(
+                request,
+                'take_quiz.html',
+                {'quiz': quiz, 'questions': questions}
+                )
 
         QuizResult.objects.create(user=user, quiz=quiz, score=score)
         return redirect('quiz_result', quiz_id=quiz.id, score=score)
@@ -272,9 +289,12 @@ def quiz_result(request, quiz_id, score=None):
     questions = quiz.questions.all()
     total_questions = questions.count()
     user = request.user
-    percentage = (score / questions.count()) * 100 if total_questions > 0 else 0
+    percentage = (
+        score / questions.count()
+        ) * 100 if total_questions > 0 else 0
 
-    # If the score is not provided, it means the user is not supposed to see the result
+    # If the score is not provided,
+    # it means the user is not supposed to see the result
     if score is None:
         result = QuizResult.objects.filter(user=user, quiz=quiz).first()
         if result:

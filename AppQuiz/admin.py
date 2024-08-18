@@ -73,7 +73,11 @@ class CustomAdminSite(admin.AdminSite):
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
-            path('dashboard/', self.admin_view(custom_admin_dashboard), name='custom_dashboard'),
+            path(
+                'dashboard/',
+                self.admin_view(custom_admin_dashboard),
+                name='custom_dashboard'
+                ),
         ]
         return custom_urls + urls
 
