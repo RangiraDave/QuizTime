@@ -210,7 +210,7 @@ def take_quiz(request, quiz_id):
 
     Args:
         request (HttpRequest): The HTTP request object.
-        quiz_id (int): The quiz ID.
+        quiz_id (int): The quiz ID.[
 
     Returns:
         HttpResponse: The HTTP response object.
