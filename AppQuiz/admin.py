@@ -6,8 +6,8 @@ from django.utils.html import format_html
 from .models import Question
 
 
-class QuestionAdmin(admin.ModelAdmin):
-    fields = ['text', 'quiz', 'description', 'example_or_doc']
+# class QuestionAdmin(admin.ModelAdmin):
+#     fields = ['text', 'quiz', 'description', 'example_or_doc']
 
 
 # Inline models
@@ -18,7 +18,7 @@ class QuestionInline(admin.TabularInline):
 
 class ChoiceInline(admin.TabularInline):
     model = Choice
-    extra = 2
+    extra = 4
 
 
 # Custom admin for Quiz model
@@ -46,11 +46,11 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 # Custom admin for Question model
-# @admin.register(Question)
-# class QuestionAdmin(admin.ModelAdmin):
-#     list_display = ('text', 'quiz')
-#     search_fields = ('text', 'quiz__title')
-#     inlines = [ChoiceInline]
+@admin.register(Question)
+class QuestionAdmin(admin.ModelAdmin):
+    list_display = ('text', 'quiz')
+    search_fields = ('text', 'quiz__title')
+    inlines = [ChoiceInline]
 
 
 # Custom admin dashboard view
@@ -84,4 +84,4 @@ custom_admin_site.register(Category, CategoryAdmin)
 custom_admin_site.register(Quiz, QuizAdmin)
 # custom_admin_site.register(Question, QuestionInline)
 custom_admin_site.register(Choice)
-admin.site.register(Question, QuestionAdmin)
+# admin.site.register(Question, QuestionAdminfrom django.urls import path
