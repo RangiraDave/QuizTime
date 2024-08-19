@@ -154,7 +154,7 @@ LOGOUT_REDIRECT_URL = 'login'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # Optionaly set the session timeout
-SESSION_COOKIE_AGE = 60 * 5 # 5 minutes
+# SESSION_COOKIE_AGE = 60 * 20 # 5 minutes
 
 # Email configuration
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
