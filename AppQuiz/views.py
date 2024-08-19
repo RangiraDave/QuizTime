@@ -245,17 +245,17 @@ def take_quiz(request, quiz_id):
                 if selected_choice.is_correct:
                     score += 1
 
-        # If there are unanswered questions, show an error message
-        if unanswered_questions:
-            messages.error(
-                request,
-                'Please answer all questions before submitting the quiz.'
-                )
-            return render(
-                request,
-                'take_quiz.html',
-                {'quiz': quiz, 'questions': questions}
-                )
+        # # If there are unanswered questions, show an error message
+        # if unanswered_questions:
+        #     messages.error(
+        #         request,
+        #         'Please answer all questions before submitting the quiz.'
+        #         )
+        #     return render(
+        #         request,
+        #         'take_quiz.html',
+        #         {'quiz': quiz, 'questions': questions}
+        #         )
 
         QuizResult.objects.create(user=user, quiz=quiz, score=score)
         return redirect('quiz_result', quiz_id=quiz.id, score=score)
