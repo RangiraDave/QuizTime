@@ -29,7 +29,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
 
 # Home view implementation
-@login_required
+# @login_required
 def home(request):
     """
     View function for the home page.
