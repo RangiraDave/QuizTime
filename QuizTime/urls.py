@@ -23,4 +23,5 @@ urlpatterns = [
     path('tinymce/', include('tinymce.urls')),
     # To include the AppQuiz URL configuration
     path('', include('AppQuiz.urls')),
+    path('accounts/', include('allauth.urls')),
 ]

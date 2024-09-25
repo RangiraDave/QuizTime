@@ -25,9 +25,9 @@ S = 'django-insecure-0sfvv@^ps#pyv0vhpf4x(k$6&dw1akk*2e-pub-ia9z9m0j8c^'
 SECRET_KEY = S
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['rangira1.pythonanywhere.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1'] # ['rangira1.pythonanywhere.com']
 
 
 # Application definition
@@ -43,8 +43,14 @@ INSTALLED_APPS = [
     'tinymce',
     'rest_framework',
     'corsheaders',
-
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    # 'allauth.socialaccount.providers.google',
 ]
+
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -55,10 +61,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
+CORS_ALLOW_CREDENTIALS = True
+CORF_ALLOWED_ORIGINS = [
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
 ]
 
 ROOT_URLCONF = 'QuizTime.urls'
@@ -145,7 +154,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'login'
 
 # Redirect to home page after login
-LOGIN_REDIRECT_URL = 'home'
+# LOGIN_REDIRECT_URL = 'home'
 
 # Redirect to login page after logout
 LOGOUT_REDIRECT_URL = 'login'
@@ -156,8 +165,19 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # Optionaly set the session timeout
 # SESSION_COOKIE_AGE = 60 * 20 # 5 minutes
 
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True
+LOGIN_REDIRECT_URL = '/'
+
 # Email configuration
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 8000
+EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'rangiradave6@gmail.com'
+EMAIL_HOST_PASSWORD = 'ktmb tobk zlez lzup'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-0sfvv@^ps#pyv0vhpf4x(k$6&dw1akk*2e-pub-ia9z9m0j8c^')
